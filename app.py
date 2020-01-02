@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy 
 from flask_marshmallow import Marshmallow 
+from flask_cors import CORS
 import os
 
 app = Flask(__name__)
+CORS(app)
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + os.path.join(basedir, "app.sqlite")
@@ -35,7 +37,14 @@ todo_schema = TodoSchema()
 todos_schema = TodoSchema(many=True)
 
 # CRUD
-# GET by ID
+# GET
+@app.route("/todos", methods=["GET"])
+def get_todos():
+    all_todos = Todo.query.all()
+    result = todos_schema.dump(all_todos)
+
+    return jsonify(result)
+    
 # POST
 @app.route("/todo", methods=["POST"])
 def add_todo():
